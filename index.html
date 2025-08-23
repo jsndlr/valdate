@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Valentines Date?</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="body">
+            
+            <h2>hi, ely! jason would like you to go out on a date with him this Valentine's day. are you in?</h2>
+            <div class="gif-animation">
+                <img id="gif" src="https://media.tenor.com/kQM8Rd7vMhMAAAAM/cat-relationship.gif" alt="GIF">
+            </div>
+
+            <div class="button-row" style="margin-left: 1rem">
+                <a class="button" href="yes.html" id="yes">absolutely!</a>
+                <a class="button" href="no.html" id="temp">hell no</a> <br>
+                <a class="button" href="no.html" id="no" style="display: none">hell no</a>
+            </div>
+
+            <hr class="style-seven">
+            <audio id="background-music" loop>
+                <source src="index.mp3">
+            </audio>
+        </div>
+    
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var audio = document.getElementById('background-music');
+                audio.play();
+            });
+        </script>
+    </body>
+</html>

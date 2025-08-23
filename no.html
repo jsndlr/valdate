@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Valentines Date?</title>
+        <link rel="stylesheet" href="styles.css">
+        <script src="script.js"></script>
+    </head>
+    <body>
+        <div class="body">
+            
+            <h2>hi, ely! jason would like you to go out on a date with him this Valentine's day. are you in?</h2>
+            <div class="gif-animation">
+                <img id="gif" src="https://media1.tenor.com/m/t7_iTN0iYekAAAAd/sad-sad-cat.gif" alt="GIF">
+            </div>
+            <div class="button-row">
+                <a class="button" href="yes.html" class="btn" id="yes">absolutely</a>
+                <button class="button" id="no">hell no</button>
+            </div>
+
+            <hr class="style-seven">
+            <audio id="background-music" loop>
+                <source src="no.mp3">
+            </audio>
+        </div>
+    
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var audio = document.getElementById('background-music');
+                audio.play();
+
+                const noButton = document.getElementById('no');
+            
+                function getRandomPosition() {
+                    const x = Math.floor(Math.random() * (window.innerWidth - noButton.offsetWidth));
+                    const y = Math.floor(Math.random() * (window.innerHeight - noButton.offsetHeight));
+                    return { x, y };
+                }
+
+                function updateButtonPosition() {
+                    const position = getRandomPosition();
+                    noButton.style.transition = 'top .7s, left .7s';
+                    noButton.style.left = position.x + 'px';
+                    noButton.style.top = position.y + 'px';
+                }
+
+                noButton.addEventListener('mouseover', updateButtonPosition);
+                window.addEventListener('resize', updateButtonPosition);
+            });
+        </script>
+    </body>
+</html>
