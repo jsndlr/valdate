@@ -38,7 +38,7 @@
 
   function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-  function placeWithinViewport(el, margin = 8) {
+  function placeWithinViewport(el, margin = 8, options = {}) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const rect = el.getBoundingClientRect();
@@ -49,8 +49,53 @@
     const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const bottomSafe = isiOS ? 28 : 12;
 
-    const left = randomInt(margin, Math.max(margin, vw - w - margin));
-    const top = randomInt(margin, Math.max(margin, vh - h - (margin + bottomSafe)));
+    const avoidEl = options.avoidEl || null;
+    const avoidDist = options.avoidDistance || 100; // center-to-center min distance
+
+    function isFarFromAvoid(left, top) {
+      if (!avoidEl) return true;
+      const a = avoidEl.getBoundingClientRect();
+      const cx = left + w / 2;
+      const cy = top + h / 2;
+      const acx = a.left + a.width / 2;
+      const acy = a.top + a.height / 2;
+      const dist = Math.hypot(cx - acx, cy - acy);
+      // Also ensure no bounding-box overlap with a small margin
+      const overlap = !(left + w < a.left - 8 || left > a.right + 8 || top + h < a.top - 8 || top > a.bottom + 8);
+      return dist > avoidDist && !overlap;
+    }
+
+    const maxLeft = Math.max(margin, vw - w - margin);
+    const maxTop = Math.max(margin, vh - h - (margin + bottomSafe));
+
+    let left = randomInt(margin, maxLeft);
+    let top = randomInt(margin, maxTop);
+
+    // Try multiple times to find a spot away from the avoid element
+    let tries = 0;
+    while (!isFarFromAvoid(left, top) && tries < 40) {
+      left = randomInt(margin, maxLeft);
+      top = randomInt(margin, maxTop);
+      tries++;
+    }
+
+    if (!isFarFromAvoid(left, top) && avoidEl) {
+      // Fallback: push away from avoid center along the vector
+      const a = avoidEl.getBoundingClientRect();
+      const acx = a.left + a.width / 2;
+      const acy = a.top + a.height / 2;
+      const cx = left + w / 2;
+      const cy = top + h / 2;
+      let vx = cx - acx;
+      let vy = cy - acy;
+      const len = Math.hypot(vx, vy) || 1;
+      vx /= len; vy /= len;
+      const targetCx = acx + vx * (avoidDist + w / 2);
+      const targetCy = acy + vy * (avoidDist + h / 2);
+      left = clamp(Math.round(targetCx - w / 2), margin, maxLeft);
+      top = clamp(Math.round(targetCy - h / 2), margin, maxTop);
+    }
+
     el.style.left = left + 'px';
     el.style.top = top + 'px';
   }
@@ -61,8 +106,10 @@
     noButton.style.position = 'fixed';
     noButton.style.transition = 'left .75s cubic-bezier(.22,.61,.36,1), top .75s cubic-bezier(.22,.61,.36,1), transform .2s ease';
 
-    // Initial random placement so it doesn't overlap other elements
-    placeWithinViewport(noButton, 16);
+    const yesEl = document.getElementById('yes');
+
+    // Initial random placement so it doesn't overlap other elements or the YES button
+    placeWithinViewport(noButton, 16, { avoidEl: yesEl, avoidDistance: 110 });
 
     const threshold = 70; // px distance at which it dodges (smaller = less jumpy)
     const cooldownMs = 650; // minimum time between moves to slow it down
@@ -80,8 +127,8 @@
       const dist = Math.hypot(dx, dy);
 
       if (dist < threshold) {
-        // Pick a new safe location away from the pointer
-        placeWithinViewport(noButton, 12);
+        // Pick a new safe location away from the pointer and away from the YES button
+        placeWithinViewport(noButton, 12, { avoidEl: yesEl, avoidDistance: 110 });
         lastMove = now;
       }
     }
@@ -99,12 +146,15 @@
     }, { passive: true });
 
     // If it ever gets focus (keyboard), dodge too :)
-    noButton.addEventListener('focus', () => placeWithinViewport(noButton, 12));
+    noButton.addEventListener('focus', () => placeWithinViewport(noButton, 12, { avoidEl: yesEl, avoidDistance: 110 }));
+
+    // Keep separation on resize/orientation change
+    window.addEventListener('resize', () => placeWithinViewport(noButton, 16, { avoidEl: yesEl, avoidDistance: 110 }));
 
     // Prevent activating it by any means
     noButton.addEventListener('click', (e) => {
       e.preventDefault();
-      placeWithinViewport(noButton, 12);
+      placeWithinViewport(noButton, 12, { avoidEl: yesEl, avoidDistance: 110 });
     });
   }
 
@@ -114,6 +164,8 @@
     setupAudioOnFirstGesture(audio);
 
     const noBtn = document.getElementById('no');
-    setupDodgeButton(noBtn);
+    if (noBtn && noBtn.dataset && noBtn.dataset.dodge === 'true') {
+      setupDodgeButton(noBtn);
+    }
   });
 })();
