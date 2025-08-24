@@ -1,88 +1,133 @@
 @import url('https://fonts.googleapis.com/css2?family=Pangolin&display=swap');
 
+:root {
+  --bg-1: #fbe9e7;
+  --bg-2: #ffe4ef;
+  --text: #5f4e48;
+  --accent: #e57373;
+  --btn: #b2967d;
+  --btn-border: #746151;
+  --btn-hover: #746151;
+  --white: #fff;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
 body {
-    font-family: 'Pangolin', cursive;
-    background-color: rgb(238, 228, 225);
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  font-family: 'Pangolin', cursive;
+  background: radial-gradient(1200px 800px at 10% 10%, var(--bg-2), transparent),
+              radial-gradient(1200px 800px at 90% 20%, var(--bg-1), transparent),
+              #fdf6f6;
+  margin: 0;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  /* iOS 13/14 friendly viewport height */
+  min-height: 100vh;
+  /* Newer browsers override with small viewport unit when available */
+}
+
+/***** Viewport height fix for modern browsers *****/
+@supports (height: 100svh) {
+  body { min-height: 100svh; }
+}
+
+/***** Safe area insets for iPhone (notches) *****/
+body {
+  padding-top: calc(16px + constant(safe-area-inset-top));
+  padding-bottom: calc(16px + constant(safe-area-inset-bottom));
+  padding-top: calc(16px + env(safe-area-inset-top));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--text);
 }
 
 .body {
-    text-align: center;
-    padding: 30;
-   
+  text-align: center;
+  padding: 16px;
+  max-width: 680px;
+  width: 100%;
 }
 
 h2 {
-    font-size: 30px; 
-    color: rgb(95, 78, 72); 
-    margin-bottom: 30px; 
+  font-size: clamp(1.25rem, 2.5vw + 0.75rem, 2rem);
+  color: var(--text);
+  margin: 0 0 16px 0;
+  line-height: 1.4;
 }
 
-.gif-animation {
-    margin-bottom: 3rem;
-}
+.gif-animation { margin: 0 auto 20px; }
 
 #gif {
-    height: 500px;
-    width: 500px; 
-    border-radius: 1rem;
+  width: min(86vw, 420px);
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 .button-row {
-    display: inline-block;
-    margin-left: -7rem;
-    margin-bottom: 2rem;
- 
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin: 16px auto 24px;
 }
 
-.yay-btn {
-    font-family: 'Pangolin', cursive;
-    font-size: 18px;
-    background-color: rgb(178, 150, 125); 
-    color: white;
-    border: 2px solid rgb(116, 97, 81); 
-    padding: 12px 24px;
-    margin-left: 7rem;
-    cursor: pointer;
-    border-radius: 1rem; 
-    text-decoration: none;
-    transition: background-color 0.3s ease;
+.button, .yay-btn {
+  font-family: 'Pangolin', cursive;
+  font-size: clamp(1rem, 0.8rem + 1vw, 1.125rem);
+  background-color: var(--btn);
+  color: var(--white);
+  border: 2px solid var(--btn-border);
+  padding: 12px 22px;
+  cursor: pointer;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform .1s ease, background-color .2s ease, box-shadow .2s ease;
+  box-shadow: 0 3px 0 var(--btn-border), 0 8px 18px rgba(0,0,0,0.08);
+  touch-action: manipulation;
 }
 
-.button {
-    font-family: 'Pangolin', cursive;
-    font-size: 18px;
-    background-color: rgb(178, 150, 125); 
-    color: white;
-    border: 2px solid rgb(116, 97, 81); 
-    padding: 12px 24px;
-    margin: 0 10px; 
-    cursor: pointer;
-    border-radius: 1rem; 
-    text-decoration: none;
-    transition: background-color 0.3s ease;
+.button:focus-visible, .yay-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.button:hover {
-    background-color: rgb(116, 97, 81);
-}
+.button:hover, .yay-btn:hover { background-color: var(--btn-hover); }
+.button:active, .yay-btn:active { transform: translateY(1px); }
 
+/* The evasive "no" button will be positioned on the viewport for dodging */
 #no {
-    position: absolute;
-    top: 43.3rem;
-    left: 47rem;
+  position: fixed;
+  top: auto;
+  left: auto;
+  z-index: 20;
+  will-change: left, top, transform;
 }
 
 hr.style-seven {
-    overflow: visible;
-    height: 30px;
-    border-style: solid;
-    border-color: black;
-    border-width: 1px 0 0 0;
-    border-radius: 20px;
+  overflow: visible;
+  height: 16px;
+  border-style: solid;
+  border-color: rgba(0,0,0,0.15);
+  border-width: 1px 0 0 0;
+  border-radius: 20px;
+  max-width: 720px;
+}
+
+/* Cute micro-animations */
+@keyframes floaty {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+.gif-animation img { animation: floaty 4s ease-in-out infinite; }
+
+/* Make tap targets comfortable on small screens */
+@media (max-width: 420px) {
+  .button, .yay-btn { padding: 14px 20px; }
 }
